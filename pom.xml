@@ -19,13 +19,23 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>org.jboss.spec</groupId>
-      <artifactId>jboss-javaee-7.0</artifactId>
-      <version>${version.jboss.spec.javaee.7.0}</version>
-      <type>pom</type>
-      <scope>provided</scope>
-    </dependency>
+   
+    
+	   <dependency>
+		  <groupId>com.openshift</groupId>
+		  <artifactId>openshift-restclient-java</artifactId>
+		  <version>6.1.1.Final</version>
+		</dependency> 
+		
+		<dependency>
+		    <groupId>org.yaml</groupId>
+		    <artifactId>snakeyaml</artifactId>
+		    <version>1.21</version>            
+		</dependency>
+    
+    
+    
+    
   </dependencies>
 
   <profiles>
