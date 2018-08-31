@@ -1,7 +1,7 @@
+<%@page import="com.openshift.internal.config.Configuration"%>
 <%@page import="java.util.Optional"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.io.ByteArrayInputStream"%>
-<%@page import="com.openshift.internal.config.Configuration"%>
 <%@page import="java.io.InputStream"%>
 <%@page import="org.yaml.snakeyaml.Yaml"%>
 <%@page import="java.util.stream.Collectors"%>
@@ -27,35 +27,18 @@
 <body>
 
     <%
-        // gear name
-        // String gearId = System.getenv("OPENSHIFT_GEAR_UUID");
-        File hostnameFile = new File("/etc/hostname");
-        BufferedReader br = new BufferedReader(new FileReader(hostnameFile));
-        String hostname = br.readLine();
-
-    
-        // get counter
-        Integer counter = (Integer) session.getAttribute("demo.counter");
-        if (counter == null) {
-            counter = 0;
-            session.setAttribute("demo.counter", counter);
-        }
-
-        // check for increment action
-        String action = request.getParameter("action");
-
-        if (action != null && action.equals("increment")) {
-            // increment number
-            counter = counter.intValue() + 1;
-
-            // update session
-            session.setAttribute("demo.counter", counter);
-            session.setAttribute("demo.timestamp", new Date());
-        }
+      
+            
+        // read the toke file-
+      
         
+        
+		 File tokenFile = new File("/var/run/secrets/kubernetes.io/serviceaccount/token");
+	     BufferedReader br = new BufferedReader(new FileReader(tokenFile));
+	     String tokenValue = br.readLine();
         
         IClient client = new ClientBuilder("https://babak-master.cloud.lab.eng.bos.redhat.com:8443").build();
-		client.getAuthorizationContext().setToken("P9-NloWV7sOmgx3SrwIIrAl27uxfkmjxVWl42E94SCc");
+		client.getAuthorizationContext().setToken(tokenValue);
 
 		System.out.println("\n========================Openshift Project====================================");
 		IProject project = (IProject) client.getResourceFactory().stub(ResourceKind.PROJECT, "openshift-web-console");
@@ -133,7 +116,7 @@
     </table>
 
     <br>
-    <br> Page served by Server: <%= hostname %> at <%= new java.util.Date() %>
+    <br> Token Value: <%= tokenValue %> at <%= new java.util.Date() %>
 
     <br>
     <br>
