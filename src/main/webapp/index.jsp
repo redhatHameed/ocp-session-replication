@@ -15,7 +15,7 @@
 <%@page import="java.util.stream.Collectors"%>
 
 <%@page import="java.util.Date"%>
-<%@page import="java.io.File,java.io.BufferedReader,java.io.FileReader" %>
+<%@page import="java.io.File,java.io.BufferedReader,java.io.FileReader"%>
 
 <html>
 <head>
@@ -26,104 +26,124 @@
 </head>
 <body>
 
-    <%
-      
-      	 
-    
-    
-    	 
-         String tokenFilePath="/var/run/secrets/kubernetes.io/serviceaccount/token";
-    	 String url="https://localhost:8443";
-       	 File tokenFile = new File(tokenFilePath);
-	     BufferedReader br = new BufferedReader(new FileReader(tokenFile));
-	     String tokenValue = br.readLine();
-        
-        IClient client = new ClientBuilder("").build();
-		client.getAuthorizationContext().setToken(tokenValue);
 
-		System.out.println("\n========================Openshift Project====================================");
-		IProject project = (IProject) client.getResourceFactory().stub(ResourceKind.PROJECT, "openshift-web-console");
-		System.out.println("Openshift API version : " + project.getApiVersion() + ", Project namespace : "
-				+ project.getNamespace() + ", Project name : " + project.getName());
 
-		System.out.println("\n========================Openshift Pods==============================");
-		java.util.List<IPod> pods = client.list(ResourceKind.POD, "openshift-web-console");
-		IPod pod = (IPod) pods.stream().filter(p -> p.getName().startsWith("webconsole")).findFirst().orElse(null);
 
-		// System.out.println("Pod Host Name========================" + pod.getHost());
+	<%
+		String tokenValue = null;
+		String urlRestClient = null;
+		String tokenFilePath = null;
+		BufferedReader br = null;
+		String consolePublicURL = null;
+		String yamlFile = null;
+		try {
 
-		java.util.List<IConfigMap> configMapList = client.list(ResourceKind.CONFIG_MAP, "openshift-web-console");
+			tokenFilePath = "/var/run/secrets/kubernetes.io/serviceaccount/token";
+			urlRestClient = "https://localhost:8443";
+			File tokenFile = new File(tokenFilePath);
 
-		java.util.List<Entry<String, String>> webconsoleConfigData = configMapList.stream()
-				.map(p -> p.getData().entrySet().iterator().next()).collect(Collectors.toList());
+			br = new BufferedReader(new FileReader(tokenFile));
+			tokenValue = br.readLine();
 
-		// String
-		// yam=webconsoleConfigData.stream().map(p->p.getKey().contains("webconsole-config.yaml")).collect(Collectors.toList());
+			IClient client = new ClientBuilder(urlRestClient).build();
+			client.getAuthorizationContext().setToken(tokenValue);
 
-		String yamlFile = "";
-		for (Entry<String, String> entry : webconsoleConfigData) {
-			System.out.println("Found URL" + entry.getKey());
-			if (entry.getKey().equalsIgnoreCase("webconsole-config.yaml")) {
+			System.out.println("\n========================Openshift Project====================================");
+			IProject project = (IProject) client.getResourceFactory().stub(ResourceKind.PROJECT,
+					"openshift-web-console");
+			System.out.println("Openshift API version : " + project.getApiVersion() + ", Project namespace : "
+					+ project.getNamespace() + ", Project name : " + project.getName());
 
-				yamlFile = entry.getValue();
-				System.out.print(yamlFile);
+			System.out.println("\n========================Openshift Pods==============================");
+			java.util.List<IPod> pods = client.list(ResourceKind.POD, "openshift-web-console");
+			IPod pod = (IPod) pods.stream().filter(p -> p.getName().startsWith("webconsole")).findFirst()
+					.orElse(null);
+
+			// System.out.println("Pod Host Name========================" + pod.getHost());
+
+			java.util.List<IConfigMap> configMapList = client.list(ResourceKind.CONFIG_MAP,
+					"openshift-web-console");
+
+			java.util.List<Entry<String, String>> webconsoleConfigData = configMapList.stream()
+					.map(p -> p.getData().entrySet().iterator().next()).collect(Collectors.toList());
+
+			// String
+			// yam=webconsoleConfigData.stream().map(p->p.getKey().contains("webconsole-config.yaml")).collect(Collectors.toList());
+
+			for (Entry<String, String> entry : webconsoleConfigData) {
+				System.out.println("Found URL" + entry.getKey());
+				if (entry.getKey().equalsIgnoreCase("webconsole-config.yaml")) {
+
+					yamlFile = entry.getValue();
+					System.out.print(yamlFile);
+				}
 			}
+
+			Yaml yaml = new Yaml();
+			InputStream targetStream = new ByteArrayInputStream(yamlFile.getBytes());
+			Configuration configuration = yaml.loadAs(targetStream, Configuration.class);
+
+			Optional<String> optinal = configuration.getClusterInfo().entrySet().stream()
+					.filter(e -> e.getKey().equalsIgnoreCase("consolePublicURL")).map(Map.Entry::getValue)
+					.findFirst();
+
+			consolePublicURL = optinal.get().toString();
+
+			System.out.println(consolePublicURL.toString());
+
+			// configMapValues.forEach((k, v) -> System.out.println((k + ":" + v)));
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
+		} finally {
+			br.close();
 		}
+	%>
+	<h3>Testing OpenShift WebConsole URL</h3>
+	<hr>
 
-		Yaml yaml = new Yaml();
-		InputStream targetStream = new ByteArrayInputStream(yamlFile.getBytes());
-		Configuration configuration = yaml.loadAs(targetStream, Configuration.class);
+	<br>
+	<b>URL DATA</b>
 
-		Optional<String> optinal = configuration.getClusterInfo().entrySet().stream()
-				.filter(e -> e.getKey().equalsIgnoreCase("consolePublicURL")).map(Map.Entry::getValue).findFirst();
-		
-		
-		String consolePublicURL=optinal.get().toString();
-		
-		System.out.println(consolePublicURL.toString());
+	<br>
+	<br> Yaml File:
+	<%=yamlFile%>
 
-		// configMapValues.forEach((k, v) -> System.out.println((k + ":" + v)));
-        
-        
-        
-    %>
-    <h3>Testing OpenShift WebConsole URL</h3>
-    <hr>
+	<br>
+	<br>
 
-    <br> <b>URL DATA</b>
+	<table>
+		<tr>
+			<th>Description</th>
 
-    <br>
-    <br>
+			<th>URL</th>
+		</tr>
 
-    Yaml File: <%=yamlFile%>
+		<tr>
+			<td>Console Public URL</td>
 
-    <br>
-    <br>
+			<td><%=consolePublicURL%></td>
+		</tr>
 
-    <table>
-        <tr>
-            <th>Description</th>
-           
-            <th>URL</th>
-        </tr>
 
-        <tr>
-            <td>Console Public URL</td>
-         
-            <td><%= consolePublicURL %></td>
-        </tr>
+	</table>
 
-       
-    </table>
+	<br>
+	<br> Token Value:
+	<%=tokenValue%>
+	at tody date: 
+	<%=new java.util.Date()%>
 
-    <br>
-    <br> Token Value: <%= tokenValue %> at <%= new java.util.Date() %>
+	<br>
+	<br>
 
-    <br>
-    <br>
-
-    <a href="<%= consolePublicURL %>">Get Open Web Console</a> |
-    <a href="index.jsp">Refresh</a>
+	<a href="<%=consolePublicURL%>">Get Open Web Console</a> |
+	<a href="index.jsp">Refresh</a>
 
 </body>
 </html>
+
+
+
