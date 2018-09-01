@@ -28,16 +28,17 @@
 
     <%
       
-            
-        // read the toke file-
-      
-        
-        
-		 File tokenFile = new File("/var/run/secrets/kubernetes.io/serviceaccount/token");
+      	 
+    
+    
+    	 
+         String tokenFilePath="/var/run/secrets/kubernetes.io/serviceaccount/token";
+    	 String url="https://localhost:8443";
+       	 File tokenFile = new File(tokenFilePath);
 	     BufferedReader br = new BufferedReader(new FileReader(tokenFile));
 	     String tokenValue = br.readLine();
         
-        IClient client = new ClientBuilder("https://babak-master.cloud.lab.eng.bos.redhat.com:8443").build();
+        IClient client = new ClientBuilder("").build();
 		client.getAuthorizationContext().setToken(tokenValue);
 
 		System.out.println("\n========================Openshift Project====================================");
