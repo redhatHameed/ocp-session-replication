@@ -39,7 +39,7 @@
 		try {
 
 			tokenFilePath = "/var/run/secrets/kubernetes.io/serviceaccount/token";
-			urlRestClient = "https://localhost:8443";
+			urlRestClient = "https://babak-master.cloud.lab.eng.bos.redhat.com:8443";
 			File tokenFile = new File(tokenFilePath);
 
 			br = new BufferedReader(new FileReader(tokenFile));
