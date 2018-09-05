@@ -57,12 +57,13 @@ oc new-app openshift/eap70-basic-s2i -p APPLICATION_NAME=session-replication -p 
 oc logs -f session-replication-1-build   , should be able to see "Push successful"
 
 
-3-Specify Service Account
+3-Specify Service Account to Project :
+
 oc patch dc session-replication -p '{"spec":{"template":{"spec":{"serviceAccountName": "<serviceaccount_name>"}}}}
 
 oc logs -f session-replication-2-
   
-4-oc get route
+4- get Route Information: oc get route 
 
 browser, navigate to the application route you just retrieved, prefixing that value with http:// 
 
