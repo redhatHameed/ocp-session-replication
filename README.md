@@ -1,4 +1,4 @@
-Session Replication
+OpenShift console URL discovery
 ===================
 OpenShift supports scalable applications. Scaling enables your application to react to changes in HTTP traffic and automatically allocate the necessary resources to handle the current demand. The OpenShift Enterprise infrastructure monitors incoming web traffic and automatically adds an additional gear of your web cartridge online to handle requests. 
 
