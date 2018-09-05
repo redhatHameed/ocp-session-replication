@@ -66,9 +66,11 @@ oc logs -f session-replication-2-
 
 browser, navigate to the application route you just retrieved, prefixing that value with http:// 
 
-should be able to see JSP page, click to the link for get open webconsole, which will redirect the openshift webcosnole :
+should be able to see JSP page, click to the link "open webconsole", which will redirect to openshift webcosnole app:
 
-the JSP page is using the rest client to get the webconsole project information : 
+The JSP page is using the rest client to get the webconsole project information , jsp file code found at :
+
+https://github.com/redhatHameed/ocp-session-replication/blob/3.7/src/main/webapp/index.jsp
 
 
 
