@@ -48,19 +48,31 @@ curl -k     -H "Authorization: Bearer $TOKEN"     -H 'Accept: application/json' 
         
 Step 3: Test with Simple JEE application: 
 
+1-Create the application:
+oc new-app openshift/eap70-basic-s2i -p APPLICATION_NAME=session-replication -p SOURCE_REPOSITORY_URL=https://github.com/redhatHameed/ocp-session-replication.git -p SOURCE_REPOSITORY_REF=3.7 -p CONTEXT_DIR=
 
 
-        
+2-check build logs for the JEE Maven build:
+
+oc logs -f session-replication-1-build   , should be able to see "Push successful"
 
 
+3-Specify Service Account
+oc patch dc session-replication -p '{"spec":{"template":{"spec":{"serviceAccountName": "<serviceaccount_name>"}}}}
 
-
-
-
-
-
+oc logs -f session-replication-2-
   
-  
+4-oc get route
+
+browser, navigate to the application route you just retrieved, prefixing that value with http:// 
+
+should be able to see JSP page, click to the link for get open webconsole, which will redirect the openshift webcosnole :
+
+the JSP page is using the rest client to get the webconsole project information : 
+
+
+
+
 
 
 
